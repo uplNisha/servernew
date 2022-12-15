@@ -7,7 +7,7 @@ export default {
 
         return new Promise(async (resolve, reject) => {
             try {
-                bcrypt.hash(req.body.password, 10, (err: any, hash: any) => {
+                bcrypt.hash(req.body.password, 10,async (err: any, hash: any) => {
                     if (err) {
                         return res.status(500).json({
                             error: err
@@ -20,10 +20,9 @@ export default {
                             email: req.body?.email,
                             password: hash,
                             role: req.body?.role
-
-
                         });
-                        const Data = newuser.save();
+                        const Data = await newuser.save();
+                        console.log(Data,"data");
                         if (!Data) {
                             return reject({
                                 status: 400,
