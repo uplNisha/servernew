@@ -1,0 +1,14 @@
+{
+    "DATA_CREATE_FAILED":"Failed to Create data",
+    "DATA_CREATED":"Data is Created successfully",
+    "INTERNAL_SERVER_ERROR":"Problem in internet server",
+    "DATA_FOUND":"Data found successfully",
+    "DATA_NOT_FOUND":"Problem in finding data ",
+    "DATA_DELETED":"Selected data in successfully deleted",
+    "DATA_UPDATED":"Data successfully updated",
+    "USER_NOT_EXIST":"This user is not exist",
+    "PASSWORD_NOT_MATCH":"Password is wrong"
+
+
+
+}

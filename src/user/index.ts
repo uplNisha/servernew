@@ -30,10 +30,10 @@ router.post("/signup", async (req: any, res: any) => {
  * @type - POST
  * @route - /api/user/signin
  * @description - signin api 
- * @function - signuser
+ * @function - signin
  */
 router.post("/signin", async (req: any, res: any) => {
-    userService.signuser(req,res).then((response: any) => {
+    userService.signin(req,res).then((response: any) => {
         return res.status(response.status).send({
             error: response.error,
             result: response.result,

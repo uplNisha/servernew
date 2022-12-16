@@ -1,4 +1,5 @@
 import userModel from "./model";
+import messages from "../services/message.json"
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 
@@ -22,13 +23,12 @@ export default {
                             role: req.body?.role
                         });
                         const Data = await newuser.save();
-                        console.log(Data,"data");
                         if (!Data) {
                             return reject({
                                 status: 400,
                                 error: true,
                                 code: "DATA_CREATE_FAILED",
-                                message: "DATA_CREATE_FAILED",
+                                message: messages["DATA_CREATE_FAILED"],
                             })
                         }
                         else {
@@ -37,7 +37,7 @@ export default {
                                 error: false,
                                 result: Data,
                                 code: "DATA_CREATED",
-                                message: "DATA_CREATED",
+                                message: messages["DATA_CREATED"],
                             })
                         }
                     }
@@ -51,28 +51,28 @@ export default {
                     error: true,
                     result: error,
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "INTERNAL_SERVER_ERROR",
+                    message: messages["INTERNAL_SERVER_ERROR"],
                 })
             }
         })
     },
-    signuser: (req: any, res: any) => {
+    signin: (req: any, res: any) => {
         return new Promise(async (resolve, reject) => {
             try {
                 userModel.find({ name: req.body.name })
                     .exec()
                     .then(user => {
                         if (user.length < 1) {
-                            return res.status(401).json({
-                                message: "user_not_exist"
+                            return res.status(401)({
+                                message: messages["USER_NOT_EXIST"]
                             })
 
                         }
                         else {
                             bcrypt.compare(req.body.password, user[0].password, (err: any, result: any) => {
                                 if (!result) {
-                                    return res.status(401).json({
-                                        message: "passward_not_match"
+                                    return res.status(401)({
+                                        message: messages["PASSWORD_NOT_MATCH"]
                                     })
                                 }
                                 else {
@@ -122,9 +122,9 @@ export default {
             try {
                 userModel.find({ name: req.body.name })
                     .exec()
-                    .then(user => {
+                    .then(async user => {
                         if (user[0].role == "admin") {
-                            const userfind = userModel.find({});
+                            const userfind = await userModel.find({});
                             if (userfind) {
                                 return resolve({
                                     status: 200,
@@ -134,6 +134,11 @@ export default {
                                     message: "DATA_FOUND",
                                 })
                             }
+                        }
+                        else{
+                            return res.status(401).json({
+                             message: "you are not admin "
+                            })
                         }
 
                     })

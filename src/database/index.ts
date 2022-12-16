@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 import config from "../config";
 
 require("dotenv").config();
+mongoose.set('strictQuery', true);
 
 // logger.level = "error";
 export default () => {
