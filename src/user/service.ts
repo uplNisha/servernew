@@ -1,5 +1,6 @@
 import userModel from "./model";
 import messages from "../services/message.json"
+import { Console } from "console";
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 
@@ -134,10 +135,21 @@ export default {
                                     message: "DATA_FOUND",
                                 })
                             }
+                            else{
+                                return reject({
+                                    status: 404,
+                                    error: true,
+                                    code: "DATA_NOT_FOUND",
+                                    message: "DATA_NOT_FOUND",
+                                })
+                            }
                         }
                         else{
-                            return res.status(401).json({
-                             message: "you are not admin "
+                            return reject({
+                                status: 401,
+                                error: true,
+                                code: "UNAUTHORIZED",
+                                message: "UNAUTHORIZED",
                             })
                         }
 
@@ -145,6 +157,7 @@ export default {
             }
 
             catch (err) {
+                console.log("User[003] error",err);
                 return reject({
                     status: 500,
                     error: true,
