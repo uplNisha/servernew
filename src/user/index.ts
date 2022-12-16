@@ -107,7 +107,7 @@ router.post("/signin", async (req: any, res: any) => {
  * @description - find and delete 
  * @function - getdeleteuser
  */
-    router.delete('/:id',async(req: any, res: any)=>{
+    router.delete('/:userid',async(req: any, res: any)=>{
         userService.getdeleteuser(req)
         .then((response:any)=>{
             return res.status(response.status).send({
@@ -132,8 +132,8 @@ router.post("/signin", async (req: any, res: any) => {
  * @description - find and delete 
  * @function - getdeleteuser
  */
-    router.patch('/:id',async(req: any, res: any)=>{
-        userService.getupdateuser(req)
+    router.post('/update',userService.verifyToken,async(req: any, res: any)=>{
+        userService.getupdateuser(req,res)
         .then((response:any)=>{
             return res.status(response.status).send({
                 error: response.error,

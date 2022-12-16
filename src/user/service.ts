@@ -1,18 +1,48 @@
 import userModel from "./model";
 import messages from "../services/message.json"
-import { Console } from "console";
+import { response } from "express";
+import config from "../config/index";
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 
+const securePassword = async(password:any)=>{
+    try{
+        const passwordHash=await bcrypt.hash(password,10);
+        return passwordHash;
+
+    }
+    catch(error){
+        response.status(400).send(error);
+    }
+}
 export default {
+    verifyToken:async(req:any,res:any,next:any)=>{
+        const token = req.body.token || req.query.token || req.headers["authorization"];
+        if(!token){
+            res.status(200).send({success:false,msg:"A token is required for authentication"});
+    
+        }
+        try{
+            const descode=jwt.verify(token,config.config.secret_jwt);
+            req.user=descode;
+        }
+        catch(error){
+            res.status(400).send("invalid token");
+        }
+        return next();
+    
+    },
     createuser: (req: any, res: any) => {
 
         return new Promise(async (resolve, reject) => {
             try {
                 bcrypt.hash(req.body.password, 10,async (err: any, hash: any) => {
                     if (err) {
-                        return res.status(500).json({
-                            error: err
+                        return reject({
+                            status: 500,
+                            error: true,
+                            code: "DATA_CREATE_FAILED",
+                            message: messages["DATA_CREATE_FAILED"],
                         })
                     }
                     else {
@@ -20,7 +50,7 @@ export default {
                             name: req.body?.name,
                             phone_Number: req.body?.phone_Number,
                             email: req.body?.email,
-                            password: hash,
+                            password: req.body.password,
                             role: req.body?.role
                         });
                         const Data = await newuser.save();
@@ -47,6 +77,7 @@ export default {
 
             }
             catch (error) {
+                console.log("User[001] error",error);
                 return reject({
                     status: 500,
                     error: true,
@@ -64,16 +95,24 @@ export default {
                     .exec()
                     .then(user => {
                         if (user.length < 1) {
-                            return res.status(401)({
+                            return reject({
+                                status: 401,
+                                error: true,
+                                code: "USER_NOT_EXIST",
                                 message: messages["USER_NOT_EXIST"]
+                                
                             })
 
                         }
                         else {
                             bcrypt.compare(req.body.password, user[0].password, (err: any, result: any) => {
                                 if (!result) {
-                                    return res.status(401)({
+                                    return reject({
+                                        status: 401,
+                                        error: true,
+                                        code: "USER_NOT_EXIST",
                                         message: messages["PASSWORD_NOT_MATCH"]
+                                        
                                     })
                                 }
                                 else {
@@ -106,12 +145,13 @@ export default {
             }
 
             catch (err) {
+                console.log("User[002] error",err);
                 return reject({
                     status: 500,
                     error: true,
                     result: err,
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "INTERNAL_SERVER_ERROR",
+                    message: messages["INTERNAL_SERVER_ERROR"],
                 })
             }
         })
@@ -132,7 +172,7 @@ export default {
                                     error: false,
                                     result: userfind,
                                     code: "DATA_FOUND",
-                                    message: "DATA_FOUND",
+                                    message: messages["DATA_FOUND"],
                                 })
                             }
                             else{
@@ -140,7 +180,7 @@ export default {
                                     status: 404,
                                     error: true,
                                     code: "DATA_NOT_FOUND",
-                                    message: "DATA_NOT_FOUND",
+                                    message: messages["DATA_NOT_FOUND"],
                                 })
                             }
                         }
@@ -149,7 +189,7 @@ export default {
                                 status: 401,
                                 error: true,
                                 code: "UNAUTHORIZED",
-                                message: "UNAUTHORIZED",
+                                message: messages["UNAUTHORIZED"],
                             })
                         }
 
@@ -163,7 +203,7 @@ export default {
                     error: true,
                     result: err,
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "INTERNAL_SERVER_ERROR",
+                    message: messages["INTERNAL_SERVER_ERROR"],
                 })
             }
         })
@@ -182,24 +222,25 @@ export default {
                         error: false,
                         result: userfind,
                         code: "DATA_FOUND",
-                        message: "DATA_FOUND",
+                        message: messages["DATA_FOUND"],
                     })
                 } else {
                     return reject({
                         status: 404,
                         error: true,
                         code: "DATA_NOT_FOUND",
-                        message: "DATA_NOT_FOUND",
+                        message: messages["DATA_NOT_FOUND"],
                     })
                 }
 
             } catch (err) {
+                console.log("User[004] error",err);
                 return reject({
                     status: 500,
                     error: true,
                     result: err,
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "INTERNAL_SERVER_ERROR",
+                    message: messages["INTERNAL_SERVER_ERROR"],
                 })
             }
         }
@@ -216,24 +257,25 @@ export default {
                         error: false,
                         result: userfind,
                         code: "DATA_FOUND",
-                        message: "DATA_FOUND",
+                        message: messages["DATA_FOUND"],
                     })
                 } else {
                     return reject({
                         status: 404,
                         error: true,
                         code: "DATA_NOT_FOUND",
-                        message: "DATA_NOT_FOUND",
+                        message: messages["DATA_NOT_FOUND"],
                     })
                 }
 
             } catch (err) {
+                console.log("User[005] error",err);
                 return reject({
                     status: 500,
                     error: true,
                     result: err,
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "INTERNAL_SERVER_ERROR",
+                    message: messages["INTERNAL_SERVER_ERROR"],
                 })
             }
         }
@@ -242,66 +284,65 @@ export default {
     getdeleteuser: (req: any) => {
         return new Promise(async (resolve, reject) => {
             try {
-                const userfind = await userModel.findByIdAndDelete({ _id: req.params?.id })
+                const userfind = await userModel.findByIdAndDelete({ _id: req.params?.userid })
                 if (userfind) {
                     return resolve({
                         status: 200,
                         error: false,
                         result: userfind,
                         code: "DATA_FOUND",
-                        message: "DATA_DELETED",
+                        message: messages["DATA_DELETED"],
                     })
                 } else {
                     return reject({
                         status: 404,
                         error: true,
                         code: "DATA_NOT_FOUND",
-                        message: "DATA_NOT_FOUND",
+                        message: messages["DATA_NOT_FOUND"],
                     })
                 }
 
             } catch (err) {
+                console.log("User[006] error",err);
                 return reject({
                     status: 500,
                     error: true,
                     result: err,
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "INTERNAL_SERVER_ERROR",
+                    message: messages["INTERNAL_SERVER_ERROR"],
                 })
             }
         }
         )
     },
-    getupdateuser: (req: any) => {
+    
+    getupdateuser: (req: any,res:any) => {
         return new Promise(async (resolve, reject) => {
+            
             try {
-                const userfind = await userModel.findByIdAndUpdate(req.params?.id, req.body, {
-                    new: true
-                });
-                if (userfind) {
-                    return resolve({
-                        status: 200,
-                        error: false,
-                        result: userfind,
-                        code: "DATA_FOUND",
-                        message: "DATA_DELETED",
-                    })
-                } else {
-                    return reject({
-                        status: 404,
-                        error: true,
-                        code: "DATA_NOT_FOUND",
-                        message: "DATA_NOT_FOUND",
-                    })
+                const user_id=req.body.user_id;
+                const password= req.body.password;
+                const data =await userModel.findOne({_id:user_id});
+                if(data){
+                    const newPassword = await securePassword(password);
+                    const userData = await userModel.findByIdAndUpdate({_id:user_id},{$set:{
+                        password:newPassword
+                    }});
+                    res.status(200).send({success:true,msg:"your password has been updated"})
                 }
-
-            } catch (err) {
+                else{
+                    res.status(200).send({success:false,msg:"user id not found"});
+                    
+                }
+            }
+            catch (err) {
+                console.log("User[007] error",err);
                 return reject({
                     status: 500,
                     error: true,
                     result: err,
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "INTERNAL_SERVER_ERROR",
+                    message: messages["INTERNAL_SERVER_ERROR"],
                 })
             }
         }

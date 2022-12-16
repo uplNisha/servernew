@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 
 const envFound = dotenv.config();
 
+
 if (envFound.error) {
   // This error should crash whole process
   console.log("⚠️  Couldn't find .env file  ⚠️");
@@ -18,6 +19,9 @@ const EXPIRES: number = parseInt(process.env.jwtExpiryIn as string);
 const TOKEN_SEC: string = process.env.jwtPrivateKey as string;
 
 export default {
+  config:{
+    secret_jwt:"thisismysecretjwt"
+  },
   port: PORT,
 
   databaseURL: MONGODB_URI,

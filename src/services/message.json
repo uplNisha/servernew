@@ -7,7 +7,9 @@
     "DATA_DELETED":"Selected data in successfully deleted",
     "DATA_UPDATED":"Data successfully updated",
     "USER_NOT_EXIST":"This user is not exist",
-    "PASSWORD_NOT_MATCH":"Password is wrong"
+    "PASSWORD_NOT_MATCH":"Password is wrong",
+    "UNAUTHORIZED":"Sorry you dont have access to perform this oparation"
+    
 
 
 
