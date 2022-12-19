@@ -1,7 +1,6 @@
 import userModel from "./model";
 import messages from "../services/message.json"
 import { response } from "express";
-import config from "../config/index";
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 
@@ -23,7 +22,7 @@ export default {
     
         }
         try{
-            const descode=jwt.verify(token,config.config.secret_jwt);
+            const descode=jwt.verify(token,'this is dummy test');
             req.user=descode;
         }
         catch(error){
@@ -50,7 +49,7 @@ export default {
                             name: req.body?.name,
                             phone_Number: req.body?.phone_Number,
                             email: req.body?.email,
-                            password: req.body.password,
+                            password:hash,
                             role: req.body?.role
                         });
                         const Data = await newuser.save();

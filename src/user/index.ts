@@ -127,10 +127,10 @@ router.post("/signin", async (req: any, res: any) => {
         })
         })
          /**
- * @type - delete
- * @route - /api/user/:Id
- * @description - find and delete 
- * @function - getdeleteuser
+ * @type - post
+ * @route - /api/user/update
+ * @description - update password 
+ * @function - getupdateuser
  */
     router.post('/update',userService.verifyToken,async(req: any, res: any)=>{
         userService.getupdateuser(req,res)
